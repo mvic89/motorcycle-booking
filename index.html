@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EU Motorcycle Repair Shop Directory</title>
+  <link rel="stylesheet" href="./styles/styles.css">
+  <script src="./scripts/scripts.js" defer></script>
+</head>
+<body>
+  <div class="container">
+        <header>
+            <h1>🏍️ EU Motorcycle Repair Shop Directory</h1>
+            <p class="subtitle">Find the best motorcycle repair shops across Europe</p>
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-number" id="totalShops">3,149</span>
+                    <span>Total Shops</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="totalCountries">29</span>
+                    <span>Countries</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="totalCities">0</span>
+                    <span>Cities</span>
+                </div>
+            </div>
+        </header>
+        <div class="filters">
+            <div class="filter-grid">
+                <div class="filter-group">
+                    <label for="searchInput">🔍 Search by name</label>
+                    <input type="text" id="searchInput" class="search-input" placeholder="Search shop name...">
+                </div>
+                <div class="filter-group">
+                    <label for="countryFilter">🌍 Country</label>
+                    <select id="countryFilter">
+                        <option value="">All Countries</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="cityFilter">🏙️ City</label>
+                    <select id="cityFilter">
+                        <option value="">All Cities</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="ratingFilter">⭐ Minimum Rating</label>
+                    <select id="ratingFilter">
+                        <option value="0">All Ratings</option>
+                        <option value="4.5">4.5+ Stars</option>
+                        <option value="4.0">4.0+ Stars</option>
+                        <option value="3.5">3.5+ Stars</option>
+                        <option value="3.0">3.0+ Stars</option>
+                    </select>
+                </div>
+            </div>
+            <div class="filter-buttons">
+                <button class="btn-primary" onclick="applyFilters()">Apply Filters</button>
+                <button class="btn-secondary" onclick="resetFilters()">Reset All</button>
+            </div>
+        </div>
+
+        <div class="results-header">
+            <div class="results-count">
+                Showing <span id="resultsCount">0</span> shops
+            </div>
+            <div class="sort-group">
+                <label for="sortBy">Sort by:</label>
+                <select id="sortBy" onchange="applyFilters()">
+                    <option value="rating">Highest Rated</option>
+                    <option value="reviews">Most Reviews</option>
+                    <option value="name">Name (A-Z)</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="shopsContainer" class="loading">Loading shops...</div>
+    </div>
+</body>
+</html>
