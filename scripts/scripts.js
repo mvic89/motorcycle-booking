@@ -183,6 +183,19 @@ function createShopCard(shop) {
     const hasWebsite = shop.website && shop.website !== 'N/A';
     const hasCoords = shop.latitude && shop.longitude;
     
+    // Create map URL - prefer business search over raw coordinates
+    let mapUrl = '';
+    if (hasCoords) {
+        // Option A: Search by business name + location (finds Google listing)
+        mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(shop.name + ', ' + shop.address + ', ' + shop.city)}`;
+        
+        // Option B: Use coordinates with query (shows pin + nearby listings)
+        // mapUrl = `https://www.google.com/maps/search/?api=1&query=${shop.latitude},${shop.longitude}&query_place_id=${encodeURIComponent(shop.name)}`;
+        
+        // Option C: Direct coordinates (original - just shows location)
+        // mapUrl = `https://www.google.com/maps?q=${shop.latitude},${shop.longitude}`;
+    }
+    
     const hoursText = shop.hours || 'Hours not available';
     const isClosed = hoursText.toLowerCase().includes('closed');
     const hoursClass = isClosed ? 'hours-closed' : 'hours-open';
@@ -236,8 +249,8 @@ function createShopCard(shop) {
                 ${hasWebsite ? `
                     <a href="${shop.website}" target="_blank" class="action-btn btn-website">🌐 Website</a>
                 ` : ''}
-                ${hasCoords ? `
-                    <a href="https://www.google.com/maps?q=${shop.latitude},${shop.longitude}" target="_blank" class="action-btn btn-map">🗺️ Map</a>
+                ${mapUrl ? `
+                    <a href="${mapUrl}" target="_blank" class="action-btn btn-map">🗺️ Map</a>
                 ` : ''}
             </div>
         </div>
