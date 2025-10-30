@@ -10,9 +10,8 @@ async function loadData() {
         allShops = data.shops;
         allCountries = data.countries;
         
-        // Calculate total cities
-        const totalCities = Object.values(allCountries).reduce((sum, cities) => sum + cities.length, 0);
-        document.getElementById('totalCities').textContent = totalCities.toLocaleString();
+        // Update initial stats
+        updateStats();
         
         populateCountryFilter();
         applyFilters();
@@ -21,6 +20,39 @@ async function loadData() {
         document.getElementById('shopsContainer').innerHTML = 
             '<div class="no-results"><div class="no-results-icon">⚠️</div><h2>Error Loading Data</h2><p>Please make sure directory_data.json is in the data/ folder.</p></div>';
     }
+}
+
+function updateStats() {
+    // Update stats based on filtered shops or all shops
+    const shopsToCount = filteredShops.length > 0 ? filteredShops : allShops;
+    
+    // Count total shops
+    const totalShops = shopsToCount.length;
+    document.getElementById('totalShops').textContent = totalShops.toLocaleString();
+    
+    // Count unique countries
+    const uniqueCountries = new Set();
+    shopsToCount.forEach(shop => {
+        const city = shop.city || '';
+        if (city.includes(', ')) {
+            const country = city.split(', ').pop();
+            if (country) uniqueCountries.add(country);
+        }
+    });
+    document.getElementById('totalCountries').textContent = uniqueCountries.size;
+    
+    // Count unique cities
+    const uniqueCities = new Set();
+    shopsToCount.forEach(shop => {
+        const city = shop.city || '';
+        if (city.includes(', ')) {
+            const cityName = city.split(', ')[0];
+            if (cityName && cityName !== 'Unknown City') {
+                uniqueCities.add(cityName);
+            }
+        }
+    });
+    document.getElementById('totalCities').textContent = uniqueCities.size;
 }
 
 function populateCountryFilter() {
@@ -114,6 +146,9 @@ function applyFilters() {
         }
     });
 
+    // Update stats with filtered data
+    updateStats();
+    
     displayShops();
 }
 
@@ -216,6 +251,10 @@ function resetFilters() {
     document.getElementById('cityFilter').disabled = true;
     document.getElementById('ratingFilter').value = '0';
     document.getElementById('sortBy').value = 'rating';
+    
+    // Reset filtered shops to show all
+    filteredShops = [];
+    
     applyFilters();
 }
 

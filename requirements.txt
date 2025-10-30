@@ -1,0 +1,5 @@
+# Python requirements for OSM Motorcycle Repair Shop Extractor
+# Install with: pip install -r requirements.txt
+
+osmium>=4.0.0        # PyOsmium - for parsing OSM PBF files
+requests>=2.25.0     # For downloading files from Geofabrik

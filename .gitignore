@@ -1,0 +1,25 @@
+# OSM Large Files - Don't push to GitHub
+# These can be re-downloaded from Geofabrik anytime
+osm_downloads/
+*.osm.pbf
+
+# Intermediate CSV - Can be regenerated
+motorcycle_repair_shops.csv
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+env/
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
