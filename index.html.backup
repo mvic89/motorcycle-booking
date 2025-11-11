@@ -5,17 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>EU Motorcycle Repair Shop Directory</title>
   <link rel="stylesheet" href="./styles/styles.css">
-  
-  <!-- Supabase JavaScript Client Library -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  
-  <!-- Load Supabase credentials from external config file (gitignored) -->
-  <script src="./config-local.js"></script>
-  
-  <!-- Initialize Supabase client -->
-  <script src="./config.js"></script>
-  
-  <!-- Your main JavaScript file -->
   <script src="./scripts/scripts.js" defer></script>
 </head>
 <body>
@@ -25,11 +14,11 @@
             <p class="subtitle">Find the best motorcycle repair shops across Europe</p>
             <div class="stats">
                 <div class="stat-item">
-                    <span class="stat-number" id="totalShops">0</span>
+                    <span class="stat-number" id="totalShops">3,149</span>
                     <span>Total Shops</span>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-number" id="totalCountries">0</span>
+                    <span class="stat-number" id="totalCountries">29</span>
                     <span>Countries</span>
                 </div>
                 <div class="stat-item">
@@ -87,12 +76,7 @@
             </div>
         </div>
 
-        <div id="shopsContainer" class="loading">
-            <div style="text-align: center; padding: 40px;">
-                <div style="font-size: 3em; margin-bottom: 20px;">🔄</div>
-                <div style="font-size: 1.2em;">Loading shops from database...</div>
-            </div>
-        </div>
+        <div id="shopsContainer" class="loading">Loading shops...</div>
     </div>
 </body>
 </html>

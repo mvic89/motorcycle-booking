@@ -2,92 +2,24 @@ let allShops = [];
 let allCountries = {};
 let filteredShops = [];
 
-// Load data from Supabase database
+// Load data
 async function loadData() {
     try {
-        console.log('📡 Loading data from Supabase...');
-        
-        // Fetch all shops from Supabase database
-        const { data: shops, error: shopsError } = await supabaseClient
-            .from('shops')
-            .select('*')
-            .order('name');
-        
-        if (shopsError) {
-            console.error('Supabase error:', shopsError);
-            throw shopsError;
-        }
-        
-        console.log(`✅ Loaded ${shops.length} shops from database`);
-        
-        // Store shops globally
-        allShops = shops;
-        
-        // Build countries object for filters
-        console.log('🌍 Building countries/cities list...');
-        allCountries = buildCountriesFromShops(shops);
-        
-        console.log(`✅ Found ${Object.keys(allCountries).length} countries`);
+        const response = await fetch('./data/directory_data.json');
+        const data = await response.json();
+        allShops = data.shops;
+        allCountries = data.countries;
         
         // Update initial stats
         updateStats();
         
-        // Populate country filter dropdown
         populateCountryFilter();
-        
-        // Display shops
         applyFilters();
-        
-        console.log('✅ Data loaded successfully!');
-        
     } catch (error) {
-        console.error('❌ Error loading data from Supabase:', error);
+        console.error('Error loading data:', error);
         document.getElementById('shopsContainer').innerHTML = 
-            '<div class="no-results">' +
-            '<div class="no-results-icon">⚠️</div>' +
-            '<h2>Error Loading Data</h2>' +
-            '<p>Could not connect to database. Please check:</p>' +
-            '<ul style="text-align: left; display: inline-block;">' +
-            '<li>Your Supabase credentials in index.html</li>' +
-            '<li>Your internet connection</li>' +
-            '<li>Browser console (F12) for details</li>' +
-            '</ul>' +
-            '</div>';
+            '<div class="no-results"><div class="no-results-icon">⚠️</div><h2>Error Loading Data</h2><p>Please make sure directory_data.json is in the data/ folder.</p></div>';
     }
-}
-
-// Helper function to build countries object from shops data
-function buildCountriesFromShops(shops) {
-    const countriesMap = {};
-    
-    shops.forEach(shop => {
-        // Get city and country from separate Supabase columns
-        const city = shop.address_city || shop.city?.split(', ')[0];
-        const country = shop.address_country || shop.city?.split(', ').pop();
-        
-        // Skip if missing data or unknown values
-        if (!city || !country) return;
-        if (city === 'Unknown City' || country === 'Unknown Country') return;
-        
-        // Initialize country array if needed
-        if (!countriesMap[country]) {
-            countriesMap[country] = new Set();
-        }
-        
-        // Add city to country's set (Set automatically avoids duplicates)
-        countriesMap[country].add(city);
-    });
-    
-    // Convert Sets to sorted arrays
-    const result = {};
-    Object.keys(countriesMap).sort().forEach(country => {
-        result[country] = Array.from(countriesMap[country]).sort();
-    });
-    
-    console.log('Countries found:', Object.keys(result).length);
-    console.log('Countries:', result);
-    
-    return result;
 }
 
 function updateStats() {
@@ -101,9 +33,10 @@ function updateStats() {
     // Count unique countries
     const uniqueCountries = new Set();
     shopsToCount.forEach(shop => {
-        const country = shop.address_country || shop.city?.split(', ').pop();
-        if (country && country !== 'Unknown Country') {
-            uniqueCountries.add(country);
+        const city = shop.city || '';
+        if (city.includes(', ')) {
+            const country = city.split(', ').pop();
+            if (country) uniqueCountries.add(country);
         }
     });
     document.getElementById('totalCountries').textContent = uniqueCountries.size;
@@ -111,9 +44,12 @@ function updateStats() {
     // Count unique cities
     const uniqueCities = new Set();
     shopsToCount.forEach(shop => {
-        const city = shop.address_city || shop.city?.split(', ')[0];
-        if (city && city !== 'Unknown City') {
-            uniqueCities.add(city);
+        const city = shop.city || '';
+        if (city.includes(', ')) {
+            const cityName = city.split(', ')[0];
+            if (cityName && cityName !== 'Unknown City') {
+                uniqueCities.add(cityName);
+            }
         }
     });
     document.getElementById('totalCities').textContent = uniqueCities.size;
@@ -122,9 +58,6 @@ function updateStats() {
 function populateCountryFilter() {
     const countryFilter = document.getElementById('countryFilter');
     const countries = Object.keys(allCountries).sort();
-    
-    // Clear existing options (except "All Countries")
-    countryFilter.innerHTML = '<option value="">All Countries</option>';
     
     countries.forEach(country => {
         const option = document.createElement('option');
@@ -171,17 +104,17 @@ function applyFilters() {
             return false;
         }
 
-        // Country filter - check both address_country and city field
+        // Country filter
         if (selectedCountry) {
-            const shopCountry = shop.address_country || shop.city?.split(', ').pop();
+            const shopCountry = shop.city.split(', ').pop();
             if (shopCountry !== selectedCountry) {
                 return false;
             }
         }
 
-        // City filter - check both address_city and city field
+        // City filter
         if (selectedCity) {
-            const shopCity = shop.address_city || shop.city?.split(', ')[0];
+            const shopCity = shop.city.split(', ')[0];
             if (shopCity !== selectedCity) {
                 return false;
             }
@@ -250,29 +183,20 @@ function createShopCard(shop) {
     const hasWebsite = shop.website && shop.website !== 'N/A';
     const hasCoords = shop.latitude && shop.longitude;
     
-    // Build city display from Supabase columns or legacy city field
-    let cityDisplay;
-    if (shop.address_city && shop.address_country) {
-        cityDisplay = `${shop.address_city}, ${shop.address_country}`;
-    } else if (shop.city) {
-        cityDisplay = shop.city;
-    } else if (shop.address_country) {
-        cityDisplay = `Unknown City, ${shop.address_country}`;
-    } else {
-        cityDisplay = 'Location not available';
-    }
-    
-    // Get address
-    const address = shop.address_street || shop.address || 'Address not available';
-    
     // Create map URL - prefer business search over raw coordinates
     let mapUrl = '';
     if (hasCoords) {
         // Option A: Search by business name + location (finds Google listing)
-        mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(shop.name + ', ' + address + ', ' + cityDisplay)}`;
+        mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(shop.name + ', ' + shop.address + ', ' + shop.city)}`;
+        
+        // Option B: Use coordinates with query (shows pin + nearby listings)
+        // mapUrl = `https://www.google.com/maps/search/?api=1&query=${shop.latitude},${shop.longitude}&query_place_id=${encodeURIComponent(shop.name)}`;
+        
+        // Option C: Direct coordinates (original - just shows location)
+        // mapUrl = `https://www.google.com/maps?q=${shop.latitude},${shop.longitude}`;
     }
     
-    const hoursText = shop.opening_hours || shop.hours || 'Hours not available';
+    const hoursText = shop.hours || 'Hours not available';
     const isClosed = hoursText.toLowerCase().includes('closed');
     const hoursClass = isClosed ? 'hours-closed' : 'hours-open';
     
@@ -292,12 +216,12 @@ function createShopCard(shop) {
             <div class="shop-info">
                 <div class="info-row">
                     <span class="info-icon">📍</span>
-                    <span class="info-text">${address}</span>
+                    <span class="info-text">${shop.address}</span>
                 </div>
                 
                 <div class="info-row">
                     <span class="info-icon">🏙️</span>
-                    <span class="info-text">${cityDisplay}</span>
+                    <span class="info-text">${shop.city}</span>
                 </div>
                 
                 ${hasPhone ? `
