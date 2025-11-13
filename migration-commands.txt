@@ -1,0 +1,9 @@
+migrates osm_download data to supabase database:
+  python migrate_to_supabase.py
+
+extracting motorcycle repairsshop data:
+  python osm_mc_repair_extractor.py {country-name}
+  ex. python osm_mc_repair_extractor.py luxembourg
+
+convert OSM to JSON:
+  python convert_osm_to_json.py
